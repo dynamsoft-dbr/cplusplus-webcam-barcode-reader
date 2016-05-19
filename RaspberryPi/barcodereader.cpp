@@ -151,9 +151,11 @@ void read(Mat &image, CBarcodeReader &reader)
 
 int main(int, char**)
 {
+        printf("Start barcode scanner...\n");
 	VideoCapture cap(0); // open the default camera
 	if (!cap.isOpened())  // check if we succeeded
 		return -1;
+        printf("Camera opened.\n");
 
         int res = pthread_mutex_init(&image_mutex, NULL); 
         if (res)
@@ -174,7 +176,7 @@ int main(int, char**)
         
 
         cap >> frame; // Get a new frame from camera
-        imshow("reader", frame); // Display the new frame
+        //imshow("reader", frame); // Display the new frame
 
         // Initialize the cache
         int width = frame.cols, height = frame.rows;
@@ -203,7 +205,7 @@ int main(int, char**)
 	for (;;)
 	{
             cap >> frame; // Get a new frame from camera
-            imshow("reader", frame); // Display the new frame
+         //   imshow("reader", frame); // Display the new frame
             if (waitKey(30) >= 0)
                 break;
 
