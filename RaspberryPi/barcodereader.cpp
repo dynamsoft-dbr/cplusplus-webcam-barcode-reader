@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "If_DBRP.h"
 #include <sys/time.h>
+#include <pthread.h>
 
 using namespace cv;
 using namespace std;
@@ -30,6 +31,11 @@ struct barcode_format
 	__int64 llFormat;
 };
 
+typedef struct {
+    int width, height, elemSize, size;
+    char* data;
+} ImageData;
+
 static struct barcode_format Barcode_Formats[] =
 {
 	{ "CODE_39", CODE_39 },
@@ -47,6 +53,12 @@ static struct barcode_format Barcode_Formats[] =
 	{ "PDF417",PDF417 },
 	{ "DATAMATRIX", DATAMATRIX }
 };
+
+void *thread_function(void *arg);
+pthread_mutex_t image_mutex, dbr_mutex;
+volatile bool isDBRWorking = false;
+CBarcodeReader reader;
+ImageData imageData = {0};
 
 const char * GetFormatStr(__int64 format)
 {
@@ -143,9 +155,22 @@ int main(int, char**)
 	if (!cap.isOpened())  // check if we succeeded
 		return -1;
 
+        int res = pthread_mutex_init(&image_mutex, NULL); 
+        if (res)
+        {
+            perror("Mutex initialization failed");
+            exit(EXIT_FAILURE);
+        }
+
+        res = pthread_mutex_init(&dbr_mutex, NULL);
+        if (res)
+        {
+            perror("Mutex initialization failed");
+            exit(EXIT_FAILURE);
+        }
+
 	Mat frame;
 	// Initialize Dynamsoft Barcode Reader
-	CBarcodeReader reader ;
 	reader.InitLicense("38B9B94D8B0E2B41660D13B593BE6EF9");
 	__int64 llFormat = (OneD | QR_CODE | PDF417 | DATAMATRIX);
 	int iMaxCount = 0x7FFFFFFF;
@@ -153,17 +178,75 @@ int main(int, char**)
 	ro.llBarcodeFormat = llFormat;
 	ro.iMaxBarcodesNumPerPage = iMaxCount;
 	reader.SetReaderOptions(ro);
+        
+        // Create a dbr thread
+        pthread_t dbr_thread;
+        res = pthread_create(&dbr_thread, NULL, thread_function, NULL);
+        if (res)
+        {
+            perror("Thread creation failed");
+            exit(EXIT_FAILURE);
+        }
 
-        int i = 0;
 	for (;;)
 	{
 		cap >> frame; // Get a new frame from camera
 		imshow("reader", frame); // Display the new frame
+                if (waitKey(30) >= 0)
+                    break;
 
-		read(frame, reader);
+		//read(frame, reader);
 
-		if (waitKey(30) >= 0) break;
-	}
-	
+                pthread_mutex_lock(&image_mutex); 
+
+                int width = frame.cols, height = frame.rows;
+                int elemSize = frame.elemSize();
+                int size = frame.total() * elemSize;
+                char *data = (char *)frame.data;
+                imageData.width = width;
+                imageData.height = height;
+                imageData.elemSize = elemSize;
+                if (!imageData.data)
+                {
+                   imageData.data = (char *)malloc(size); 
+                }
+                memcpy(imageData.data, data, size);
+                pthread_mutex_unlock(&image_mutex);
+
+        }
+        
+        // Quit dbr thread and destroy mutex
+        isDBRWorking = false;
+        res = pthread_join(dbr_thread, NULL);
+        if (res != 0) 
+        {
+            perror("Thread join failed");
+            exit(EXIT_FAILURE);
+        }
+   
+        if (imageData.data)
+        {
+            free(imageData.data);
+        }
+        pthread_mutex_destroy(&image_mutex);        
+        pthread_mutex_destroy(&dbr_mutex);        
 	return 0;
+}
+
+void *thread_function(void *arg) {
+        int width, height, size, elemSize;
+        char* data;
+        while (isDBRWorking)
+        {
+            pthread_mutex_lock(&image_mutex); 
+            width = imageData.width;
+            height = imageData.height;
+            elemSize = imageData.elemSize;
+            size = imageData.size;
+            data = (char *)malloc(size); 
+            memcpy(data, imageData.data, size);
+            pthread_mutex_unlock(&image_mutex);
+            
+
+        }
 }
