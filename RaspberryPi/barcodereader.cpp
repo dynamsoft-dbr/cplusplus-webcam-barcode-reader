@@ -3,6 +3,7 @@
 #include "If_DBRP.h"
 #include <sys/time.h>
 #include <pthread.h>
+#include <wiringPi.h>
 
 using namespace cv;
 using namespace std;
@@ -195,7 +196,7 @@ int main(int, char **) {
 
   for (;;) {
     cap >> frame;  // Get a new frame from camera
-                   //   imshow("reader", frame); // Display the new frame
+                      imshow("reader", frame); // Display the new frame
     if (waitKey(30) >= 0) break;
 
     // read(frame, reader);
@@ -231,7 +232,12 @@ void *thread_function(void *arg) {
   buffer = (char *)malloc(size);
   pthread_mutex_unlock(&image_mutex);
 
+  // initialize wiringpi
+  wiringPiSetup();
+  pinMode(0, OUTPUT);
+
   while (isDBRWorking) {
+    digitalWrite(0, LOW);
     // Get the frame buffer
     pthread_mutex_lock(&image_mutex);
     memcpy(buffer, imageData.data, size);
@@ -283,6 +289,8 @@ void *thread_function(void *arg) {
     reader.GetBarcodes(&paryResult);
 
     if (paryResult->iBarcodeCount > 0) {
+      digitalWrite(0, HIGH);
+      delay(500);
       for (int iIndex = 0; iIndex < paryResult->iBarcodeCount; iIndex++) {
         sprintf(pszTemp, "Barcode %d:\r\n", iIndex + 1);
         printf(pszTemp);
