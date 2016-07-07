@@ -20,7 +20,8 @@ The samples demonstrate how to use [Dynamsoft Barcode Reader SDK](http://www.dyn
     ```
 3. Visit [license page](http://www.dynamsoft.com/CustomerPortal/Account/GetTrialLicense.aspx?Product=DBR) to get a trial license.
 4. Follow the [article](http://www.pyimagesearch.com/2015/10/26/how-to-install-opencv-3-on-raspbian-jessie/) to install OpenCV.
-5. Build the source code:
+5. Install [Wiring Pi](http://wiringpi.com/download-and-install/) 
+6. Build the source code:
 
    ```
    g++ -ggdb -I$(DynamsoftBarcodeReader)/include -o barcodereader barcodereader.cpp -lDynamsoftBarcodeReader `pkg-config --libs opencv` -lwiringPi -lpthread
