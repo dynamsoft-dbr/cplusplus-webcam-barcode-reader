@@ -23,5 +23,5 @@ The samples demonstrate how to use [Dynamsoft Barcode Reader SDK](http://www.dyn
 5. Build the source code:
 
    ```
-   g++ -ggdb -I$(DynamsoftBarcodeReader)/include -o barcodereader barcodereader.cpp -lDynamsoftBarcodeReader `pkg-config --libs opencv`
+   g++ -ggdb -I$(DynamsoftBarcodeReader)/include -o barcodereader barcodereader.cpp -lDynamsoftBarcodeReader `pkg-config --libs opencv` -lwiringPi -lpthread
    ```
