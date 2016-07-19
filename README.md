@@ -26,3 +26,9 @@ The samples demonstrate how to use [Dynamsoft Barcode Reader SDK](http://www.dyn
    ```
    g++ -ggdb -I$(DynamsoftBarcodeReader)/include -o barcodereader barcodereader.cpp -lDynamsoftBarcodeReader `pkg-config --libs opencv` -lwiringPi -lpthread
    ```
+
+## Blog
+1. [Real-time Webcam Barcode Detection with OpenCV and C++](http://www.codepool.biz/webcam-barcode-detection-opencv-cplusplus.html)
+2. [Barcode Scanner Optimization for Raspberry Pi](http://www.codepool.biz/raspberrypi-barcode-scanner-optimization.html)
+3. [Raspberry Pi Barcode Scanner with GPIO](http://www.codepool.biz/raspberry-pi-barcode-scanner-gpio.html)
+   
