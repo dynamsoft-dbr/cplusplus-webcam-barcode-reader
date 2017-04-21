@@ -12,7 +12,7 @@ The samples demonstrate how to use [Dynamsoft Barcode Reader SDK](http://www.dyn
 4. Build the project and copy the relevant **\*.dll** libraries to the output directory
 
 ### Raspberry Pi Raspbian Jessie
-1. Contact [support@dynamsoft.com](mailto:support@dynamsoft.com) to get the download link.
+1. Download [Dynamsoft Barcode Reader for Raspberry Pi](http://www.dynamsoft.com/Downloads/Dynamic-Barcode-Reader-for-Raspberry-Pi-Download.aspx).
 2. Extract the package and generate a symbolic link:
 
     ```
